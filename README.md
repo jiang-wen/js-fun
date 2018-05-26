@@ -12,5 +12,7 @@
 
 [输入正确有惊喜](https://jiang-wen.github.io/js-fun/verification/index.html)
 
+[我算不出来](https://jiang-wen.github.io/js-fun/calculator/index.html)
+
 
 
