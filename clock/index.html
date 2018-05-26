@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>时钟</title>
 <style>
 	body{
@@ -220,6 +220,8 @@
 	window.onload = function(){
 		clock.init();
 		clock.movePointer();
+		document.getElementById("clock").style.transform = "scale("+window.innerWidth/(window.innerWidth*1.2)+")";
+		document.getElementById("clock").style.marginTop = document.getElementById("clock").offsetHeight/200 + "px";
 	}
 </script>
 </html>
