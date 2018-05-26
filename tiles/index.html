@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1"> 
+		<title>别踩白块儿</title>
+		<style>
+			body{
+				margin:0;
+				padding: 0;
+				background-color: #000;
+			}
+			.wrap{
+				width:900px;
+				height:700px;
+				margin:0 auto;
+				position: relative;
+				top: 60px;
+			}
+			.title{
+				width: inherit;
+				height:100px;
+				line-height: 100px;
+				color:#fff;
+				font-size: 50px;
+				font-weight: 800;
+				text-align: center;
+			}
+			.main{
+				width: inherit;
+				height:620px;
+				display: flex;
+			}
+			.left{
+				flex: 1;
+				height:620px;
+			}
+			.center{
+				flex: 2;
+				height:620px;
+			}
+			.right{
+				flex: 1;
+				height:620px;
+			}
+			.mark{
+				width:inherit;
+				height:550px;
+				border:5px solid aquamarine;
+				border-radius:20px;
+				background: #fff;
+
+			}
+			.game{
+				width: 400px;
+				height:550px;
+				border: 2px solid aquamarine;
+				margin:0 auto;
+				overflow: hidden;
+				position: relative;
+			}
+			.row{
+				width:400px;
+				height: 125px;
+				position:absolute;
+			}
+			#row1{top:425px;}
+			#row2{top:300px;}
+			#row3{top:175px;}
+			#row4{top:50px;}
+			#row5{top:-75px;}
+			#row6{top:-200px;}
+			.default_tile{
+				width:98px;
+				height:123px;
+				border:1px solid #000;
+				float:left;
+				background: #fff;
+			}
+			.btn{
+				width:200px;
+				height:80px;
+				background: mediumturquoise;
+				margin:10px auto;
+				color:#fff;
+				text-align: center;
+				line-height: 80px;
+				font-size: 26px;
+				font-weight: bold;
+				border-radius: 10px;
+				cursor: pointer;
+			}
+			.btn:hover{
+				box-shadow: 0px 0px 3px 3px #7FFFD4;
+			}
+			#mark{
+				font-size:80px;
+				width: 215px;
+				display: block;
+				text-align: center;
+				position: relative;
+				top: 100px;
+				
+			}
+			.key{
+				width:400px;
+				height:40px;
+				margin:0 auto;
+			}
+			.key span{
+				display: inline-block;
+				width:95px;
+				height: 40px;
+				line-height: 40px;
+				color: #fff;
+				text-align: center;
+			}
+			#gameover{
+				width:215px;
+				height:100px;
+				line-height: 100px;
+				position: relative;
+				text-align: center;
+				font-size:24px;
+				color:#fff;
+				background: red;
+				top:220px;
+				display: none;
+				transition: 1s;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="wrap">
+			<div class="title">别踩白块儿</div>
+			<div class="main">
+				<div class="left">
+					
+					<div class="mark">
+						<h1 style="text-align: center;">分数</h1>
+						<span id="mark">0</span>
+						<div id="gameover">游戏结束！</div>
+					</div>
+				</div>
+				<div class="center">
+					<div class="game" id="game">
+						<div class="row" id="row1">
+							<div class="default_tile"></div>
+							<div class="default_tile"></div>
+							<div class="default_tile"></div>
+							<div class="default_tile"></div>
+						</div>
+						<div class="row" id="row2">
+							<div class="default_tile"></div>
+							<div class="default_tile"></div>
+							<div class="default_tile"></div>
+							<div class="default_tile"></div>
+						</div>
+						<div class="row" id="row3">
+							<div class="default_tile"></div>
+							<div class="default_tile"></div>
+							<div class="default_tile"></div>
+							<div class="default_tile"></div>
+						</div>
+						<div class="row" id="row4">
+							<div class="default_tile"></div>
+							<div class="default_tile"></div>
+							<div class="default_tile"></div>
+							<div class="default_tile"></div>
+						</div>
+						<div class="row" id="row5">
+							<div class="default_tile"></div>
+							<div class="default_tile"></div>
+							<div class="default_tile"></div>
+							<div class="default_tile"></div>
+						</div>
+						<div class="row" id="row6">
+							<div class="default_tile"></div>
+							<div class="default_tile"></div>
+							<div class="default_tile"></div>
+							<div class="default_tile"></div>
+						</div>
+					</div>
+					<div class="key">
+						<span>D</span>
+						<span>F</span>
+						<span>J</span>
+						<span>K</span>
+					</div>
+				</div>
+				<div class="right">
+					<div class="btn" id="start">开始(F2)</div>
+					<div class="btn" id="pause">暂停(Space)</div>
+					<div class="btn" id="over">结束(F4)</div>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript">
+		
+		var tile = {
+			
+			
+			init:function(){
+				this.speed = 4;
+				this.allRow = [];
+				this.gameRunning = false;
+				this.gameStart = false;
+				
+				var row1 = document.getElementById("row1");
+				var row2 = document.getElementById("row2");
+				var row3 = document.getElementById("row3");
+				var row4 = document.getElementById("row4");
+				var row5 = document.getElementById("row5");
+				var row6 = document.getElementById("row6");
+				
+				this.allRow.push(row1);
+				this.allRow.push(row2);
+				this.allRow.push(row3);
+				this.allRow.push(row4);
+				this.allRow.push(row5);
+				this.allRow.push(row6);
+				
+				row1.style.top = "425px";
+				row2.style.top = "300px";
+				row3.style.top = "175px";
+				row4.style.top = "50px";
+				row5.style.top = "-75px";
+				row6.style.top = "-200px";
+				
+				var tiles = document.getElementsByClassName("default_tile");
+				for(var i=0;i<tiles.length;i++){
+					tiles[i].style.background = "white";
+				}
+				var mark = document.getElementById("mark");
+				mark.innerHTML = 0;
+				
+				document.getElementById("gameover").style.display = "none";
+				
+				for(var i=0;i<this.allRow.length;i++){
+					this.allRow[i].hasBlackTile = false;
+				}
+				this.buttonControl();
+				this.keyControl();
+				
+			},moveRow:function(){
+				this.speedControl();
+				this.timer = setInterval(function(){
+					var obj = tile.allRow;
+					for(var i=0;i<obj.length;i++){
+						var tempRow = obj[0];
+						if(tempRow.offsetTop >= 500 && tempRow.hasBlackTile){
+							
+							tile.errChange(0,tempRow.blackTilePos);
+							break;
+						}
+						if( tempRow.offsetTop >= 550){
+							
+							tempRow.style.top = "-200px";
+							
+							
+							var row = obj[0].getElementsByTagName("div");
+							obj.shift();  
+							obj.push(tempRow);
+							if(!tempRow.hasBlackTile){
+								
+								var k = Math.floor(Math.random()*4);
+								row[k].style.backgroundColor = "#000";
+								tempRow.blackTilePos = k;
+								tempRow.hasBlackTile = true;
+							}
+						}
+						obj[i].style.top = (obj[i].offsetTop+tile.speed)+"px";
+					}
+				},10);
+			},keyPlay:function(event){
+				    //取消默认操作
+    			var blackTilePos = -1;
+    			var blackRowPos = -1;
+    			for(var i=0;i<this.allRow.length;i++){
+    				
+    				if(this.allRow[i].hasBlackTile){
+    					blackTilePos = this.allRow[i].blackTilePos;
+    					blackRowPos = i;
+    					break;
+    				}
+    			}
+    			
+    			if(blackRowPos != -1 && blackTilePos != -1){
+    				if(event.keyCode == 113 && !this.gameRunning){
+						tile.startGame();
+					}
+					else if(event.keyCode == 32 && this.gameRunning){
+						tile.pauseGame();
+					}
+					else if(event.keyCode == 115){
+						tile.init();
+					}
+    				else if((event.keyCode == 68 && blackTilePos == 0)
+    				|| (event.keyCode == 70 && blackTilePos == 1)  
+    				|| (event.keyCode == 74 && blackTilePos == 2)
+                    || (event.keyCode == 75 && blackTilePos == 3)){
+                    	if(this.gameRunning){
+                    		this.rightChange(blackRowPos,blackTilePos);
+                    	}
+                    	
+                    }else{
+                    	var errTilePos;
+                    	switch(event.keyCode){
+                    		case 68:errTilePos = 0;break;
+                    		case 70:errTilePos = 1;break;
+                    		case 74:errTilePos = 2;break;
+                    		case 75:errTilePos = 3;break;
+                    	}
+                    	if(this.gameRunning){
+                    		this.errChange(blackRowPos,errTilePos);
+                    	}
+                    	
+                    }
+    			}
+    			
+			},rightChange:function(blackRowPos,blackTilePos){
+				var mark = document.getElementById("mark");
+				mark.innerHTML = (parseInt(mark.innerHTML)+1);
+
+				this.allRow[blackRowPos].getElementsByTagName("div")[blackTilePos].style.background = "white";
+				this.allRow[blackRowPos].getElementsByTagName("div")[blackTilePos].style.transition = "1s" ;
+				this.allRow[blackRowPos].hasBlackTile = false;	
+				
+			},errChange:function(blackRowPos,errTilePos){
+				
+				this.allRow[blackRowPos].getElementsByTagName("div")[errTilePos].style.background = "red";
+				this.GameOver();
+				
+			},startGame:function(){
+				if(!this.gameRunning){
+					this.init();
+					this.moveRow();
+					document.onkeyup = function(event){
+						tile.keyPlay(event);
+					}
+					this.gameRunning = true;
+					this.gameStart = true;
+				}else{
+					return;
+				}
+			},pauseGame:function(){
+				if(this.gameRunning ){  //如果游戏进行中
+					clearInterval(this.timer);
+					document.getElementById("pause").innerHTML = "继续(Space)";
+					this.gameRunning = false;
+
+				}else{
+					this.moveRow();
+					document.getElementById("pause").innerHTML = "暂停(Space)";
+					this.gameRunning = true;
+
+				}
+			},GameOver:function(){
+				clearInterval(this.timer);
+				document.getElementById("gameover").style.display = "block";
+				this.gameRunning = false;
+				this.gameStart = false;
+			},speedControl:function(){
+				var mark = document.getElementById("mark").innerHTML;
+
+				if(mark >=30){
+					this.speed = 5;
+				}else if(mark >= 100){
+					this.speed = 6;
+				}else if(mark >= 1000){
+					this.speed = 7;
+				}else if(mark >= 5000){
+					this.speed = 8;
+				}else{
+					this.speed = 9;
+				}
+			},buttonControl:function(){
+				var start = document.getElementById("start");
+				var pause = document.getElementById("pause");
+				var over = document.getElementById("over");
+				
+				start.onclick = function(){
+					tile.startGame();
+				};
+				pause.onclick = function(){
+					if(tile.gameStart){
+						tile.pauseGame();
+					}
+				};
+				over.onclick = function(){
+					clearInterval(tile.timer);
+					tile.init();
+					tile.gameStart = false;
+					tile.gameRunning = false;
+				}
+				
+			},keyControl:function(){
+				document.onkeyup = function(event){
+					if(event.keyCode == 113 && !tile.gameStart){
+						tile.startGame();
+					}
+					
+				}
+			}
+		}
+		window.onload = function(){
+			
+			tile.buttonControl();
+			tile.keyControl();
+		}
+	</script>
+</html>

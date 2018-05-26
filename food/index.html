@@ -1,0 +1,159 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>中午吃什么？</title>
+<style>
+	*{
+		font-family:"Microsoft YaHei";
+	}
+	body{
+		background:#000;
+	}
+	#content{
+		width:500px;
+		height:150px;
+		line-height:150px;
+		margin:auto;
+		margin-top:20px;
+		background:#eee;
+		text-align:center;
+		font-size:80px;
+		z-index:100;
+		color:#f60;
+	}
+	button{
+		display:block;
+		z-index:100;
+		margin:auto;
+		margin-top:30px;
+		width:200px;
+		height:80px;
+		font-size:40px;
+	}
+	span{
+		width:500px;
+		height:60px;
+		position:absolute;
+		text-align:center;
+		z-index:10;
+		display:block;
+		color:#fff;
+		display:none;
+	}
+	#box{
+		width:600px;
+		height:300px;
+		position:absolute;
+		z-index:80;
+	}
+	@keyframes zoomIn {
+	  0% {
+		opacity: 0;
+		-webkit-transform: scale(.3);
+		-ms-transform: scale(.3);
+		transform: scale(.3);
+	  }
+	
+	  50% {
+		opacity: 1;
+	  }
+	}
+	@keyframes white{
+		0%{opacity:0}
+		25%{opacity:0.5}
+		50%{opacity:1}
+		75%{opacity:0.5}
+		100%{opacity:0}
+	}
+</style>
+</head>
+
+<body>
+<div id='main'></div>
+<div id="box">
+    <div id="content">中午吃什么？</div>
+    <button id="btn">开始</button>
+</div>
+</body>
+<script src="jquery-3.2.1.js"></script>
+<script src="food.js" type="text/javascript"></script>
+<script type="text/javascript">
+		var btn;
+		var content;
+		var timer;
+		var box;
+		var main;
+	window.onload = function(){
+		 main = document.getElementById("main");
+		 btn = document.getElementById("btn");
+		 content = document.getElementById("content");
+		 box = document.getElementById("box");
+		/* content.style.left = parseInt((innerWidth - content.offsetWidth)/2) + "px";
+		 content.style.top = parseInt((innerHeight- content.offsetHeight)/2-50) + "px";
+		 btn.style.left = parseInt((innerWidth - btn.offsetWidth)/2) + "px";
+		 btn.style.top = parseInt((innerHeight- btn.offsetHeight)/2) + "px";*/
+		 box.style.left =  parseInt((innerWidth - box.offsetWidth)/2) + "px";
+		 box.style.top = parseInt((innerHeight- box.offsetHeight)/2-50) + "px";
+		
+		 //getRandomDiv();
+		 getRandomFood();
+		 getRandomContent();
+		//setTimeout(removeDiv,2000);
+	}
+	function getRandomFood(){
+		btn.onclick = function(){
+			btn.innerHTML = "停止";
+			btn.style.left = parseInt((innerWidth - btn.offsetWidth)/2) + "px";
+			timer = setInterval(function(){
+				var r = Math.floor(Math.random()*food.length);
+				content.innerHTML = food[r];
+			},10)
+			btn.onclick = function(){
+				
+				btn.innerHTML = "再来一次";
+				btn.style.left = parseInt((innerWidth - btn.offsetWidth)/2) + "px";
+				clearInterval(timer);
+				getRandomFood();
+			}
+		}
+	}
+	function getRandomContent(){
+		for(var i=0;i<50;i++){
+			main.innerHTML +=	"<span>"+food[Math.floor(Math.random()*food.length)]+"</span>";
+			main.lastChild.style.left = parseInt(Math.random()*(innerWidth-500)) + "px";
+			main.lastChild.style.top = parseInt(Math.random()*(innerHeight-120)) + "px";
+			main.lastChild.style.fontSize = (parseInt(Math.random()*54)+30) + "px";
+		}
+		var i = 0;
+		setInterval(function(){
+			main.children.item(i).innerHTML = food[Math.floor(Math.random()*food.length)];
+			main.children.item(i).style.left =  parseInt(Math.random()*(innerWidth-500)) + "px";
+			main.children.item(i).style.top = parseInt(Math.random()*(innerHeight-150)) + "px";
+			main.children.item(i).style.fontSize = (parseInt(Math.random()*54)+30) + "px";
+			$(main.children.item(i)).fadeIn(1000);
+			$(main.children.item(i)).fadeOut(3000);
+			if(++i == main.children.length) i = 0;
+		},100)
+	}
+	function getRandomDiv(){
+		var obj = document.getElementById("main");
+		obj.width = innerWidth - 300;
+		obj.height = innerHeight - 150;
+		obj.position = "absolute";
+		atimer = setInterval(function(){
+			obj.innerHTML +=	"<span>"+food[Math.floor(Math.random()*food.length)]+"</span>";
+			obj.lastChild.style.left = parseInt(Math.random()*(innerWidth-300)) + "px";
+			obj.lastChild.style.top = parseInt(Math.random()*(innerHeight-150)) + "px";
+			obj.lastChild.style.fontSize = (parseInt(Math.random()*24)+20) + "px";
+		},100)
+	}
+	function removeDiv(){
+		var obj = document.getElementById("main");
+		setTimeout(function(){
+			obj.removeChild(obj.childNodes[0]);
+			removeDiv();
+		},100);
+	}
+</script>
+</html>

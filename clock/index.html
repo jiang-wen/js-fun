@@ -1,0 +1,224 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>时钟</title>
+<style>
+	body{
+		background:#000;
+	}
+	#clock{
+		width:800px;
+		height:800px;
+		background:#fff;
+		border-radius:800px;
+		margin:80px auto;
+		position:relative;
+	}
+	#mark{
+		width:720px;
+		height:6px;
+		border-radius:6px;
+		position:absolute;
+		left:40px;
+		top:397px;
+	}
+	.hour_mark{
+		width:720px;
+		height:6px;
+		border-radius:6px;
+		position:absolute;
+	}
+	.hour_left{
+		width:50px;
+		height:6px;
+		border-radius:6px;
+		background:#000;
+		float:left;
+	}
+	.hour_right{
+		width:50px;
+		height:6px;
+		border-radius:6px;
+		background:#000;
+		float:right;
+	}
+	.minute_mark{
+		width:720px;
+		height:6px;
+		border-radius:6px;
+		position:absolute;
+	}
+	.minute_left{
+		width:10px;
+		height:6px;
+		border-radius:6px;
+		background:#000;
+		float:left;
+	}
+	.minute_right{
+		width:10px;
+		height:6px;
+		border-radius:6px;
+		background:#000;
+		float:right;
+	}
+	#number{
+		position:absolute;
+		width:650px;
+		height:650px;
+		top:75px;
+		left:75px;
+	}
+	#number div{
+		width:100px;
+		height:100px;
+		
+		position:absolute;
+		line-height:100px;
+		color:#aaa;
+		text-align:center;
+	}
+	#number12{ top:5px; left:275px;font-size:70px;}
+	#number6{ bottom:5px; left:275px;font-size:80px;}
+	#number11{top:45px;left:130px;font-size:70px;}
+	#number5{bottom:45px;right:130px;font-size:80px;}
+	#number10{top:140px;left:50px;font-size:70px;}
+	#number4{bottom:140px;right:40px;font-size:80px;}
+	#number9{top:275px;left:0px;font-size:80px;}
+	#number3{top:275px;right:0px;font-size:80px;}
+	#number8{bottom:140px;left:40px;font-size:80px;}
+	#number2{top:140px;right:40px;font-size:80px;}
+	#number7{bottom:45px;left:130px;font-size:80px;}
+	#number1{top:45px;right:130px;font-size:80px;}
+	
+	#clock_center{
+		width:30px;
+		height:30px;
+		border-radius:30px;
+		position:absolute;
+		background:#F60;
+		top:385px;
+		left:385px;
+		z-index:100;
+	}
+	#hour_pointer{
+		width:20px;
+		height:450px;	
+		position:absolute;
+		left:390px;
+		top:175px;
+	}
+	#hour_pointer div{
+		width:20px;
+		height:280px;
+		border-radius:30px;
+		background:#000;
+	}
+	#minute_pointer{
+		width:10px;
+		height:550px;
+		position:absolute;
+		left:395px;
+		top:125px;
+		
+	}
+	#minute_pointer div{
+		width:10px;
+		height:350px;
+		background:#000;
+		border-radius:10px;
+	}
+	#second_pointer{
+		width:6px;
+		height:600px;
+		position:absolute;
+		left:397px;
+		top:100px;
+		
+	}
+	#second_pointer div{
+		width:6px;
+		height:380px;
+		background:#f00;
+		border-radius:6px;
+	}
+</style>
+</head>
+
+<body>
+<div id="clock">
+	<div id="mark">
+        
+    </div>
+    <div id="number">
+    	<div id="number1">1</div>
+        <div id="number2">2</div>
+        <div id="number3">3</div>
+        <div id="number4">4</div>
+        <div id="number5">5</div>
+        <div id="number6">6</div>
+        <div id="number7">7</div>
+        <div id="number8">8</div>
+        <div id="number9">9</div>
+        <div id="number10">10</div>
+        <div id="number11">11</div>
+        <div id="number12">12</div>
+    </div>
+    <div id="clock_center"></div>
+    <div id="hour_pointer"><div></div></div>
+    <div id="minute_pointer"><div></div></div>
+    <div id="second_pointer"><div></div></div>
+</div>
+</body>
+<script type="text/javascript">
+	var clock = {
+		hour:0,
+		minute:0,
+		second:0,
+		hourPointer:null,
+		minutePointer:null,
+		secondPointer:null,
+		init:function(){
+			var str = "";
+			var mark = document.getElementById("mark");
+			for(var i=0;i<6;i++){
+				str+="<div class='hour_mark'><div class='hour_left'></div><div class='hour_right'></div></div>";
+			}
+			for(var i=0;i<30;i++){
+				str+="<div class='minute_mark'><div class='minute_left'></div><div class='minute_right'></div></div>";
+			}
+			mark.innerHTML = str;
+			var hour_mark = document.getElementsByClassName("hour_mark");
+			var minute_mark = document.getElementsByClassName("minute_mark");
+			
+			for(var i=0;i<6;i++){
+				hour_mark[i].style.transform = "rotate("+i*30+"deg)";
+			}
+			for(var i=0;i<30;i++){
+				minute_mark[i].style.transform = "rotate("+i*6+"deg)";
+			}
+			this.hourPointer = document.getElementById("hour_pointer");
+			this.minutePointer = document.getElementById("minute_pointer");
+			this.secondPointer = document.getElementById("second_pointer");
+		},
+		movePointer:function(){
+			var date = new Date();
+			clock.hour = [12,1,2,3,4,5,6,7,8,9,10,11,12,1,2,3,4,5,6,7,8,9,10,11][date.getHours()];
+			clock.minute = date.getMinutes();
+			clock.second = date.getSeconds();
+			var hourRotate = clock.hour*30+clock.minute*0.5;
+			var minuteRotate = clock.minute*6+clock.second*0.1;
+			var secondRotate = clock.second*6;
+			clock.hourPointer.style.transform = "rotate("+hourRotate+"deg)";
+			clock.minutePointer.style.transform = "rotate("+minuteRotate+"deg)";
+			clock.secondPointer.style.transform = "rotate("+secondRotate+"deg)";
+			setTimeout(clock.movePointer,1000);
+		}
+	}
+	window.onload = function(){
+		clock.init();
+		clock.movePointer();
+	}
+</script>
+</html>

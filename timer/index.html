@@ -1,0 +1,526 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>计时器</title>
+</head>
+<style>
+	body{
+		background:#aaa;
+	}
+	#timer{
+		width:400px;
+		height:300px;
+		background:#000;
+		margin:0 auto;
+		border-radius:10px;
+		position:relative;
+	}
+	#screen{
+		width:350px;
+		height:130px;
+		background:#666;
+		position:absolute;
+		top:25px;
+		left:25px;
+		text-align:center;
+		line-height:130px;
+		font-size:100px;
+		color:#0F0;
+		font-family:"Digiface";
+	}
+	#buttons{
+		width:350px;
+		height:80px;
+		position:absolute;
+		top:200px;
+		left:25px;
+		line-height:80px;
+		text-align:center;
+	}
+	.button{
+		display:inline-block;
+		width:60px;
+		height:60px;
+		border-radius:60px;
+		background:#aaa;
+		border:none;
+		text-align:center;
+		line-height:60px;
+		color:#fff;
+		cursor:pointer;
+	}
+	.button:hover{
+		background:#f60;
+	}
+	#record{
+		list-style:decimal;
+		width:170px;
+		height:auto;
+		margin:auto;
+		position:relative;
+	}
+	#record li{
+		height:50px;
+		line-height:50px;
+		font-size:36px;
+	}
+	#mode{
+		width:80px;
+		height:20px;
+		position:absolute;
+		left:45px;
+		top:30px;
+		z-index:100;
+		color:#0f0;
+		line-height:20px;
+		font-family:"Digiface";
+	}
+	#record_num{
+		width:80px;
+		height:20px;
+		position:absolute;
+		left:295px;
+		top:30px;
+		z-index:100;
+		color:#0f0;
+		line-height:20px;
+		font-family:"Digiface";
+	}
+	#status{
+		width:80px;
+		height:20px;
+		position:absolute;
+		left:185px;
+		top:30px;
+		z-index:100;
+		color:#0f0;
+		line-height:20px;
+		font-family:"Digiface";
+	}
+	#switch{
+		width:50px;
+		height:30px;
+		border-radius:30px;
+		line-height:30px;
+		text-align:center;
+		color:#fff;
+		position:absolute;
+		left:60px;
+		top:165px;
+		background:#aaa;
+		cursor:pointer;
+	}
+	#switch:hover{
+		background:#f60;
+	}
+	@keyframes blink{
+		0% {opacity:1}
+		50%{opacity:1}
+		50.01%{opacity:0}
+		100%{opacity:0}
+	}
+</style>
+<body>
+<div id="timer">
+	<div id="mode">clock</div>
+    <div id="status">stop</div>
+    <div id="record_num">record: 0</div>
+	<div id="screen">
+    	<span>00</span>:<span>00</span>:<span>00</span>
+    </div>
+    <div id="buttons">
+    	<div class="button">开始</div>
+        <div class="button">停止</div>
+        <div class="button">暂停</div>
+        <div class="button">计时</div>
+    </div>
+    <div id="switch">模式</div>
+</div>
+<ul id="record">
+</ul>
+</body>
+<script type="text/javascript">
+	var mytimer = {
+		minute:0,  //分钟
+		second:0,	//秒钟
+		millisecond:0, //毫秒
+		status:"stop",  //running,pause,stop 计时器状态
+		statusDiv:null,  //状态显示容器
+		modeDiv:null,  //模式显示容器
+		btn:null,   //按钮
+		timer:null, //定时器
+		myscreen:null, //屏幕内3个span
+		record:[],  //计时记录
+		currentRecord:0, //当前计时记录
+		tempRecord:null,  //计时记录显示ul
+		recordDiv:null, //计时记录条数显示容器
+		countdownSet:false,  //倒计时设置状态
+		countdownSetting:false,  //倒计时设置中
+		countdownSetTarget:0,  //倒计时设置对象，分、秒、毫秒
+		mode:"clock",  //clock,timer,countdown,record  模式
+		init:function(){																		//初始化
+			
+			this.myscreen = document.getElementById("screen").getElementsByTagName("span");
+			this.recordDiv = document.getElementById("record_num");
+			this.statusDiv = document.getElementById("status");
+			this.modeDiv = document.getElementById("mode");
+			this.tempRecord = document.getElementById("record");
+			this.btn = document.getElementsByClassName("button");
+			this.startClock();
+			this.modeSwitch();
+			this.buttonControl();
+			
+		},modeSwitch:function(){												//模式切换按钮
+			var _this = this;
+			var switchButton = document.getElementById("switch");
+			switchButton.onclick = function(){
+				if(_this.status == "running" || _this.status == "pause") return;  //正在运行时不允许切换模式
+				if(_this.mode == "timer"){	
+					_this.mode = "countdown";
+					_this.btn[3].innerHTML = "设置";
+					_this.minute = 1;
+					_this.second = 0;
+					_this.millisecond = 0;
+				}else if(_this.mode == "countdown"){
+					_this.mode = "record";
+					_this.minute = 0;
+					_this.btn[0].innerHTML = "删除";
+					_this.btn[1].innerHTML = "<";
+					_this.btn[2].innerHTML = ">";
+					_this.btn[3].innerHTML = "清空";
+					if(_this.record.length>0){
+						_this.minute = _this.record[0].minute;
+						_this.second = _this.record[0].second;
+						_this.millisecond = _this.record[0].millisecond;
+						_this.recordDiv.innerHTML = "record:1/"+_this.record.length;
+					}
+				}else if(_this.mode == "record"){
+					_this.mode = "clock";
+					_this.startClock();
+					_this.btn[0].innerHTML = "开始";
+					_this.btn[1].innerHTML = "停止";
+					_this.btn[2].innerHTML = "暂停";
+					_this.btn[3].innerHTML = "计时";
+					_this.recordDiv.innerHTML = "record:"+_this.record.length;
+				}else if(_this.mode == "clock"){
+					clearInterval(_this.timer);
+					_this.mode = "timer";
+					_this.minute = 0;
+					_this.second = 0;
+					_this.millisecond = 0;
+					_this.btn[3].innerHTML = "计时";
+					_this.statusDiv.innerHTML= _this.status;
+					_this.recordDiv.innerHTML = "record:"+_this.record.length;
+				}
+				_this.myscreen[0].innerHTML = _this.getZero(_this.minute);
+				_this.myscreen[1].innerHTML = _this.getZero(_this.second);
+				_this.myscreen[2].innerHTML = _this.getZero(_this.millisecond);
+				_this.modeDiv.innerHTML = _this.mode;
+			}
+		
+		},buttonControl:function(){               //按钮控制
+			
+			var _this = this;
+			this.btn[0].onclick = function(){
+				if(_this.mode == "timer" && _this.status == "stop"){
+					_this.tempRecord.innerHTML = "";
+					_this.record = [];
+					_this.recordDiv.innerHTML = "record:"+_this.record.length;
+					_this.startTimer();
+					
+					
+				}else if(_this.mode == "countdown" && !_this.countdownSet &&  _this.status == "stop"){
+					_this.startCountdown();
+				}
+				else if(_this.mode == "countdown" && _this.countdownSet && !_this.countdownSetting){
+					_this.countdownSetting = true;
+					_this.myscreen[_this.countdownSetTarget].style.animation = "";
+					_this.myscreen[_this.countdownSetTarget].style.color = "#f00";
+				}else if(_this.mode == "countdown" && _this.countdownSet && _this.countdownSetting){
+					_this.countdownSetting = false;
+					_this.myscreen[_this.countdownSetTarget].style.animation = "blink 1s infinite";
+					_this.myscreen[_this.countdownSetTarget].style.color = "#0f0";
+				}else if(_this.mode == "record" && _this.record.length > 0){
+					
+					_this.record.splice(_this.currentRecord,1);
+					if(_this.currentRecord == _this.record.length){
+						_this.currentRecord = 0;
+					}
+					if(_this.record.length > 0){
+						_this.recordDiv.innerHTML = "record:"+(_this.currentRecord+1)+"/"+_this.record.length;
+						_this.myscreen[0].innerHTML = _this.getZero(_this.record[_this.currentRecord].minute);
+						_this.myscreen[1].innerHTML = _this.getZero(_this.record[_this.currentRecord].second);
+						_this.myscreen[2].innerHTML = _this.getZero(_this.record[_this.currentRecord].millisecond);
+						_this.tempRecord.removeChild(_this.tempRecord.childNodes[_this.currentRecord]);
+					}else{
+						_this.recordDiv.innerHTML = "record:0";
+						_this.myscreen[0].innerHTML = "00";
+						_this.myscreen[1].innerHTML = "00";
+						_this.myscreen[2].innerHTML = "00";
+						_this.tempRecord.innerHTML = "";
+					}
+				}
+			}
+			this.btn[1].onclick = function(){  
+				if(_this.mode == "timer"){
+					_this.minute = 0;
+					_this.second = 0;
+					_this.millisecond = 0;
+					_this.clearTimer();
+				}else if(_this.mode == "countdown" && !_this.countdownSet){
+					_this.minute = 1;
+					_this.second = 0;
+					_this.millisecond = 0;
+					_this.clearTimer();
+				}else if(_this.mode == "countdown" && _this.countdownSet && !_this.countdownSetting){
+					_this.countdownSetTarget--;
+					if(_this.countdownSetTarget<0) _this.countdownSetTarget=2;
+					for(var i=0;i<3;i++){
+						_this.myscreen[i].style.animation = "";
+					}
+					_this.myscreen[_this.countdownSetTarget].style.animation = "blink 1s infinite";
+				}else if(_this.mode == "countdown" && _this.countdownSet && _this.countdownSetting){
+					switch(_this.countdownSetTarget){
+						case 0:{
+							if(_this.minute == 0) return;
+							_this.minute--;	
+							_this.myscreen[0].innerHTML = _this.getZero(_this.minute);
+						}break;
+						case 1:{
+							if(_this.second == 0) return;
+							_this.second--;
+							_this.myscreen[1].innerHTML = _this.getZero(_this.second);
+						}break;
+						case 2:{
+							if(_this.millisecond == 0) return;
+							_this.millisecond--;
+							_this.myscreen[2].innerHTML = _this.getZero(_this.millisecond);
+						}break;
+					}	
+				}else if(_this.mode == "record" && _this.record.length > 0){
+					_this.currentRecord--;
+					if(_this.currentRecord < 0){
+						_this.currentRecord = _this.record.length-1;
+					}
+					
+					_this.myscreen[0].innerHTML = _this.getZero(_this.record[_this.currentRecord].minute);
+					_this.myscreen[1].innerHTML = _this.getZero(_this.record[_this.currentRecord].second);
+					_this.myscreen[2].innerHTML = _this.getZero(_this.record[_this.currentRecord].millisecond);
+					_this.recordDiv.innerHTML = "record:"+(_this.currentRecord+1)+"/"+_this.record.length;
+				}
+			}
+			this.btn[2].onclick = function(){
+				if((_this.mode == "timer" && _this.status == "running" ) || (_this.mode == "countdown" && !_this.countdownSet && _this.status == "running")){
+					_this.pauseTimer();
+					_this.btn[2].innerHTML = "继续";
+				}else if(_this.mode == "countdown" && _this.countdownSet && !_this.countdownSetting){
+					_this.countdownSetTarget++;
+					if(_this.countdownSetTarget>2) _this.countdownSetTarget=0;
+					for(var i=0;i<3;i++){
+						_this.myscreen[i].style.animation = "";
+					}
+					_this.myscreen[_this.countdownSetTarget].style.animation = "blink 1s infinite";
+				}else if(_this.mode == "countdown" && _this.countdownSet && _this.countdownSetting){
+					switch(_this.countdownSetTarget){
+						case 0:{
+							if(_this.minute == 59) return;
+							_this.minute++;	
+							_this.myscreen[0].innerHTML = _this.getZero(_this.minute);
+						}break;
+						case 1:{
+							if(_this.second == 59) return;
+							_this.second++;
+							_this.myscreen[1].innerHTML = _this.getZero(_this.second);
+						}break;
+						case 2:{
+							if(_this.millisecond == 99) return;
+							_this.millisecond++;
+							_this.myscreen[2].innerHTML = _this.getZero(_this.millisecond);
+						}break;
+					}	
+				}else if(_this.status == "pause" && _this.mode == "countdown"){
+					_this.btn[2].innerHTML = "暂停";
+					_this.startCountdown();
+				}else if(_this.status == "pause" && _this.mode == "timer"){
+					_this.btn[2].innerHTML = "暂停";
+					_this.startTimer();
+				}else if(_this.mode == "record" && _this.record.length > 0){
+					_this.currentRecord++;
+					if(_this.currentRecord > _this.record.length - 1){
+						_this.currentRecord = 0;
+					}
+					
+					_this.myscreen[0].innerHTML = _this.getZero(_this.record[_this.currentRecord].minute);
+					_this.myscreen[1].innerHTML = _this.getZero(_this.record[_this.currentRecord].second);
+					_this.myscreen[2].innerHTML = _this.getZero(_this.record[_this.currentRecord].millisecond);
+					_this.recordDiv.innerHTML = "record:"+(_this.currentRecord+1)+"/"+_this.record.length;
+				}
+			}
+			this.btn[3].onclick = function(){
+				if(_this.mode == "timer")
+					_this.recordTimer();
+				else if(_this.mode == "countdown" && _this.status == "stop" && !_this.countdownSet){
+					_this.countdownSet = true;
+					_this.btn[0].innerHTML = "确认";
+					_this.btn[1].innerHTML = "<";
+					_this.btn[2].innerHTML = ">";
+					_this.btn[3].innerHTML = "完成";
+					_this.myscreen[_this.countdownSetTarget].style.animation = "blink 1s infinite";
+				}else if(_this.mode == "countdown" && _this.countdownSet){
+					for(var i=0;i<3;i++){
+						_this.myscreen[i].style.animation = "";
+						_this.myscreen[i].style.color = "#0f0";
+					}
+					_this.countdownSet = false;
+					_this.countdownSetting = false;
+					_this.countdownSetTarget = 0;
+					_this.btn[0].innerHTML = "开始";
+					_this.btn[1].innerHTML = "停止";
+					_this.btn[2].innerHTML = "暂停";
+					_this.btn[3].innerHTML = "设置";
+				}else if(_this.mode == "record" && _this.record.length > 0){
+					_this.minute = 0;
+					_this.second = 0;
+					_this.millisecond = 0;
+					_this.record = [] ;
+					_this.currentRecord = 0;
+					_this.tempRecord.innerHTML = "";
+					_this.recordDiv.innerHTML = "record:0";
+					_this.myscreen[0].innerHTML = "00";
+					_this.myscreen[1].innerHTML = "00";
+					_this.myscreen[2].innerHTML = "00";
+				}
+			}
+		
+		
+		},startTimer:function(){      								//开始计时
+			
+			clearInterval(this.timer);
+			this.status = "running";
+			this.statusDiv.innerHTML = this.status;
+			var _this = this;
+			this.timer = setInterval(function(){
+				_this.millisecond++;
+				if(_this.millisecond>99){
+					_this.second++;
+					_this.millisecond = 0;
+				}
+				if(_this.second>59){
+					_this.minute++;
+					_this.second = 0;
+				}
+				if(_this.millisecond == 99 && _this.second == 59 && _this.minute == 59){
+					clearInterval(this.timer);
+					_this.status = "stop";
+					_this.statusDiv.innerHTML = _this.status;
+				}
+				_this.myscreen[0].innerHTML = _this.getZero(_this.minute);
+				_this.myscreen[1].innerHTML = _this.getZero(_this.second);
+				_this.myscreen[2].innerHTML = _this.getZero(_this.millisecond);
+			},10);
+		},getZero:function(num){   											//填充零
+			if(num<10) return "0"+num;
+			return num;
+		},clearTimer:function(){										//停止
+			clearInterval(this.timer);
+			this.status = "stop";
+			this.statusDiv.innerHTML = this.status;
+			
+			this.myscreen[0].innerHTML = this.getZero(this.minute);
+			this.myscreen[1].innerHTML = this.getZero(this.second);
+			this.myscreen[2].innerHTML = this.getZero(this.millisecond);
+			
+		},pauseTimer:function(){								//暂停
+			clearInterval(this.timer);
+			this.status = "pause";
+			this.statusDiv.innerHTML = this.status;
+		},recordTimer:function(){								//计时	
+			this.tempRecord.innerHTML += "<li>"+this.myscreen[0].innerHTML+":"+this.myscreen[1].innerHTML+":"+this.myscreen[2].innerHTML+"</li>";
+			this.record.push({minute:this.minute,second:this.second,millisecond:this.millisecond});
+			this.recordDiv.innerHTML = "record:"+this.record.length;
+		},startCountdown:function(){						//开始倒计时
+			clearInterval(this.timer);
+			this.status = "running";
+			this.statusDiv.innerHTML = this.status;
+			var _this = this;
+			this.timer = setInterval(function(){
+				/*if(_this.millisecond == 0 && _this.second == 0 && _this.minute == 0){
+					clearInterval(_this.timer);
+					_this.status = "stop";
+					_this.statusDiv.innerHTML = _this.status;
+				}
+				if(_this.millisecond == 0 && _this.second > 0){
+					_this.millisecond = 99;
+					_this.second--;	
+				}
+				if(_this.second == 0 && _this.minute > 0){
+					_this.second = 59;
+					_this.minute--;
+				}
+				if(_this.millisecond > 0){
+					_this.millisecond--;
+				}*/
+				
+				if(_this.minute > 0){
+					if(_this.second > 0){
+						if(_this.millisecond >0){
+							_this.millisecond--;
+						}else if(_this.millisecond == 0){
+							_this.second--;
+							_this.millisecond = 99;
+						}
+					}else if(_this.second == 0){	
+						if(_this.millisecond >0){
+							_this.millisecond--;
+						}else if(_this.millisecond == 0){
+							_this.minute--;
+							_this.second = 59;
+							_this.millisecond = 99;
+						}
+					}
+				}else if(_this.minute == 0){
+					if(_this.second>0){
+						if(_this.millisecond >0){
+							_this.millisecond--;
+						}else if(_this.millisecond == 0){
+							_this.second--;
+							_this.millisecond = 99;
+						}
+					}else if(_this.second == 0){
+						if(_this.millisecond >0){
+							_this.millisecond--;
+						}else if(_this.millisecond == 0){
+							clearInterval(_this.timer);
+							_this.minute = 1;
+							_this.status = "stop";
+							_this.statusDiv.innerHTML = _this.status;
+						}
+					}
+				}
+				_this.myscreen[0].innerHTML = _this.getZero(_this.minute);
+				_this.myscreen[1].innerHTML = _this.getZero(_this.second);
+				_this.myscreen[2].innerHTML = _this.getZero(_this.millisecond);
+			},10);
+		},startClock:function(){					//时钟开始运行
+			clearInterval(this.timer);
+			var _this = this;
+			this.timer = setInterval(function(){
+				var date = new Date();
+				_this.minute = date.getHours();
+				_this.second = date.getMinutes();
+				_this.millisecond = date.getSeconds();
+				_this.myscreen[0].innerHTML = _this.getZero(_this.minute);  
+				_this.myscreen[1].innerHTML = _this.getZero(_this.second); 
+				_this.myscreen[2].innerHTML = _this.getZero(_this.millisecond);	
+				_this.statusDiv.innerHTML = date.toLocaleDateString();  //日期
+				_this.recordDiv.innerHTML = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][date.getDay()];  //星期
+			},1000);
+		}
+		
+	}
+	window.onload = function(){
+		mytimer.init();
+	}
+</script>
+</html>
