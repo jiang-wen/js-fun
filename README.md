@@ -1,4 +1,4 @@
-# js-fun 中文翻译：无聊的JS
+# js-fun 
 
 [中午吃什么？](https://jiang-wen.github.io/js-fun/food/index.html)
 
